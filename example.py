@@ -12,13 +12,14 @@ gaze = GazeTracking()
 webcam = cv2.VideoCapture(0)
 
 
-def calculer_barycentre(point1, point2, point3):
+def calculer_barycentre(point1, point2, point3, point4):
     x1, y1 = point1
     x2, y2 = point2
     x3, y3 = point3
+    x4, y4 = point4
 
-    barycentre_x = (x1 + x2 + x3) / 3
-    barycentre_y = (y1 + y2 + y3) / 3
+    barycentre_x = (x1 + x2 + x3 + x4) / 4
+    barycentre_y = (y1 + y2 + y3 + y4) / 4
 
     return int(barycentre_x), int(barycentre_y)
 
@@ -186,30 +187,36 @@ while True:
     if horinzontal_ratio and vertical_ratio:
         count += 1
 
-        # horinzontal_ratio = min( down_edge, horinzontal_ratio )
-        # horinzontal_ratio = max( up_edge, horinzontal_ratio )
-
         # Créer une image noire
         height, width = 1080, 1920  # Définir la résolution de l'écran (vous pouvez ajuster cela selon vos besoins)
-        black_image = np.zeros((height, width, 3), dtype=np.uint8)
+        height_square, width_square = 150, 150
+        
+        black_background = np.zeros((height, width, 3), dtype=np.uint8)
 
         # Définir les coordonnées et les dimensions du bloc rouge
         print(up_edge, vertical_ratio, down_edge)
         print(right_edge, horinzontal_ratio, left_edge)
-        x, y, w, h = int((left_edge-horinzontal_ratio)/(left_edge-right_edge)*width), int((vertical_ratio-up_edge)/(down_edge-up_edge)*height), 150, 150  # Vous pouvez ajuster ces valeurs selon vos besoins
+        
+        x, y = int((left_edge-horinzontal_ratio)/(left_edge-right_edge)*width), int((vertical_ratio-up_edge)/(down_edge-up_edge)*height)
+        
+        x = min( max( x , 0  ), width-width_square )
+        y = min( max( y , 0  ), height-height_square )
+
+        x, y, w, h = x, y, width_square, height_square  # Vous pouvez ajuster ces valeurs selon vos besoins
+        
         memo.append((x,y))
-        if len(memo) > 3:
-            bx, by = calculer_barycentre(*memo[-3:])
+        if len(memo) >= 4:
+            bx, by = calculer_barycentre(*memo[-4:])
         else:
             bx, by = x, y
         # Remplir le bloc rouge sur l'image noire
-        black_image[by:by+h, bx:bx+w] = [0, 0, 255]  # Rouge: B=0, G=0, R=255
+        black_background[by:by+h, bx:bx+w] = [0, 0, 255]  # Rouge: B=0, G=0, R=255
 
         # Afficher l'image en plein écran
         cv2.namedWindow("Fenetre", cv2.WND_PROP_FULLSCREEN)
         cv2.setWindowProperty("Fenetre", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        cv2.putText(black_image, f"{count} {x} {y}", (900, 100), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-        cv2.imshow("Fenetre", black_image)
+        cv2.putText(black_background, f"{count} {x} {y}", (900, 100), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+        cv2.imshow("Fenetre", black_background)
 
 
         time.sleep(0.05)
