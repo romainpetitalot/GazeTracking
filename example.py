@@ -163,14 +163,6 @@ down_edge = sorted(down_ratio_values)[-4]
 print(f"{down_edge = }")
 
 
-
-# right_edge = 0.52
-# left_edge = 0.97
-
-# up_edge = 0.6
-# down_edge = 1
-
-
 count = 0
 memo = []
 while True:
@@ -223,43 +215,6 @@ while True:
 
     if cv2.waitKey(1) == 27:
         break
-
-# count = 0
-# while True:
-#     # We get a new frame from the webcam
-#     _, frame = webcam.read()
-#     # We send this frame to GazeTracking to analyze it
-#     gaze.refresh(frame)
-
-#     frame = gaze.annotated_frame()
-
-#     ratio = gaze.horizontal_ratio()
-
-#     if ratio:
-#         count += 1
-
-#         # Créer une image noire
-#         height, width = 1080, 1920  # Définir la résolution de l'écran (vous pouvez ajuster cela selon vos besoins)
-#         black_image = np.zeros((height, width, 3), dtype=np.uint8)
-
-#         # Définir les coordonnées et les dimensions du bloc rouge
-#         x, y, w, h = int((left_edge-ratio)/(left_edge-right_edge)*width), 500, 200, 200  # Vous pouvez ajuster ces valeurs selon vos besoins
-
-#         # Remplir le bloc rouge sur l'image noire
-#         black_image[y:y+h, x:x+w] = [0, 0, 255]  # Rouge: B=0, G=0, R=255
-
-#         # Afficher l'image en plein écran
-#         cv2.namedWindow("Fenetre", cv2.WND_PROP_FULLSCREEN)
-#         cv2.setWindowProperty("Fenetre", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-#         cv2.putText(black_image, f"{count} {x}", (900, 100), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-#         cv2.imshow("Fenetre", black_image)
-
-
-#         time.sleep(0.05)
-
-#     if cv2.waitKey(1) == 27:
-#         break
-
    
 webcam.release()
 cv2.destroyAllWindows()
