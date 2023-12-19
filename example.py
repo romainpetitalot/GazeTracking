@@ -23,145 +23,61 @@ def calculer_barycentre(point1, point2, point3, point4):
 
     return int(barycentre_x), int(barycentre_y)
 
+def calibrate(gaze, webcam, isHorizontal, side):
+    ratio_values = []
 
-right_ratio_values = []
+    while len(ratio_values) < 50:
+        # We get a new frame from the webcam
+        _, frame = webcam.read()
 
-while len(right_ratio_values) < 50:
-    # We get a new frame from the webcam
-    _, frame = webcam.read()
+        # We send this frame to GazeTracking to analyze it
+        gaze.refresh(frame)
 
-    # We send this frame to GazeTracking to analyze it
-    gaze.refresh(frame)
+        frame = gaze.annotated_frame()
+        text1 = f"Calibration en cours, veuillez regarder l'extrémité {side} de l'écran"
+        text2 = f"Encore {50 - len(ratio_values)} valeurs"
+        if isHorizontal:
+            ratio = gaze.horizontal_ratio()
+        else:
+            ratio = gaze.vertical_ratio()
 
-    frame = gaze.annotated_frame()
-    text1 = "Calibration en cours, veuillez regarder l'extrémité droite de l'écran"
-    text2 = f"Encore {50 - len(right_ratio_values)} epochs"
+        if ratio:
+            ratio_values.append(ratio)
+        
+        cv2.putText(frame, text1, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+        cv2.putText(frame, text2, (90, 100), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
-    ratio = gaze.horizontal_ratio()
-    if ratio:
-        right_ratio_values.append(ratio)
-    
-    cv2.putText(frame, text1, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-    cv2.putText(frame, text2, (90, 100), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+        left_pupil = gaze.pupil_left_coords()
+        right_pupil = gaze.pupil_right_coords()
+        cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 140), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+        cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 175), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
 
-    left_pupil = gaze.pupil_left_coords()
-    right_pupil = gaze.pupil_right_coords()
-    cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 140), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-    cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 175), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+        cv2.imshow("Demo", frame)
+        if cv2.waitKey(1) == 27:
+            break
+    if side=="gauche" or side =="inférieure":
+        edge = sorted(ratio_values)[-4]
+    else:
+        edge = sorted(ratio_values)[4]
+    return edge
 
-    cv2.imshow("Demo", frame)
-    if cv2.waitKey(1) == 27:
-        break
-
-right_edge = sorted(right_ratio_values)[4]
+right_edge = calibrate(gaze, webcam, isHorizontal=True, side="droite")
 print(f"{right_edge = }")
 
-time.sleep(1)
+time.sleep(1.5)
 
-left_ratio_values = []
-
-while len(left_ratio_values) < 50:
-    # We get a new frame from the webcam
-    _, frame = webcam.read()
-
-    # We send this frame to GazeTracking to analyze it
-    gaze.refresh(frame)
-
-    frame = gaze.annotated_frame()
-    text1 = "Calibration en cours, veuillez regarder l'extrémité droite de l'écran"
-    text2 = f"Encore {50 - len(left_ratio_values)} epochs"
-
-    ratio = gaze.horizontal_ratio()
-    if ratio:
-        left_ratio_values.append(ratio)
-    
-    cv2.putText(frame, text1, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-    cv2.putText(frame, text2, (90, 100), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-
-    left_pupil = gaze.pupil_left_coords()
-    right_pupil = gaze.pupil_right_coords()
-    cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 140), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-    cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 175), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-
-    cv2.imshow("Demo", frame)
-    if cv2.waitKey(1) == 27:
-        break
-
-left_edge = sorted(left_ratio_values)[-4]
+left_edge = calibrate(gaze, webcam, isHorizontal=True, side="gauche")
 print(f"{left_edge = }")
 
-time.sleep(2)
+time.sleep(1.5)
 
+up_edge = calibrate(gaze, webcam, isHorizontal=False, side="supérieure")
+print(f"{right_edge = }")
 
-up_ratio_values = []
+time.sleep(1.5)
 
-while len(up_ratio_values) < 50:
-    # We get a new frame from the webcam
-    _, frame = webcam.read()
-
-    # We send this frame to GazeTracking to analyze it
-    gaze.refresh(frame)
-
-    frame = gaze.annotated_frame()
-    text1 = "Calibration en cours, veuillez regarder l'extrémité supérieur de l'écran"
-    text2 = f"Encore {50 - len(up_ratio_values)} epochs"
-
-    ratio = gaze.vertical_ratio()
-    if ratio:
-        up_ratio_values.append(ratio)
-    
-    cv2.putText(frame, text1, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-    cv2.putText(frame, text2, (90, 100), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-
-    left_pupil = gaze.pupil_left_coords()
-    right_pupil = gaze.pupil_right_coords()
-    cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 140), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-    cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 175), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-
-    cv2.imshow("Demo", frame)
-    if cv2.waitKey(1) == 27:
-        break
-
-print(up_ratio_values)
-
-up_edge = sorted(up_ratio_values)[4]
-print(f"{up_edge = }")
-
-time.sleep(2)
-
-down_ratio_values = []
-
-while len(down_ratio_values) < 50:
-    # We get a new frame from the webcam
-    _, frame = webcam.read()
-
-    # We send this frame to GazeTracking to analyze it
-    gaze.refresh(frame)
-
-    frame = gaze.annotated_frame()
-    text1 = "Calibration en cours, veuillez regarder l'extrémité droite de l'écran"
-    text2 = f"Encore {50 - len(down_ratio_values)} epochs"
-
-    ratio = gaze.vertical_ratio()
-    if ratio:
-        down_ratio_values.append(ratio)
-    
-    cv2.putText(frame, text1, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-    cv2.putText(frame, text2, (90, 100), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-
-    left_pupil = gaze.pupil_left_coords()
-    right_pupil = gaze.pupil_right_coords()
-    cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 140), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-    cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 175), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-
-    cv2.imshow("Demo", frame)
-    if cv2.waitKey(1) == 27:
-        break
-
-print(down_ratio_values)
-down_edge = sorted(down_ratio_values)[-4]
+down_edge = calibrate(gaze, webcam, isHorizontal=False, side="inférieure")
 print(f"{down_edge = }")
-
 
 count = 0
 memo = []
