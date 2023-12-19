@@ -11,6 +11,18 @@ import numpy as np
 gaze = GazeTracking()
 webcam = cv2.VideoCapture(0)
 
+
+def calculer_barycentre(point1, point2, point3):
+    x1, y1 = point1
+    x2, y2 = point2
+    x3, y3 = point3
+
+    barycentre_x = (x1 + x2 + x3) / 3
+    barycentre_y = (y1 + y2 + y3) / 3
+
+    return int(barycentre_x), int(barycentre_y)
+
+
 right_ratio_values = []
 
 while len(right_ratio_values) < 50:
@@ -159,6 +171,7 @@ print(f"{down_edge = }")
 
 
 count = 0
+memo = []
 while True:
     # We get a new frame from the webcam
     _, frame = webcam.read()
@@ -184,9 +197,13 @@ while True:
         print(up_edge, vertical_ratio, down_edge)
         print(right_edge, horinzontal_ratio, left_edge)
         x, y, w, h = int((left_edge-horinzontal_ratio)/(left_edge-right_edge)*width), int((vertical_ratio-up_edge)/(down_edge-up_edge)*height), 150, 150  # Vous pouvez ajuster ces valeurs selon vos besoins
-
+        memo.append((x,y))
+        if len(memo) > 3:
+            bx, by = calculer_barycentre(*memo[-3:])
+        else:
+            bx, by = x, y
         # Remplir le bloc rouge sur l'image noire
-        black_image[y:y+h, x:x+w] = [0, 0, 255]  # Rouge: B=0, G=0, R=255
+        black_image[by:by+h, bx:bx+w] = [0, 0, 255]  # Rouge: B=0, G=0, R=255
 
         # Afficher l'image en plein écran
         cv2.namedWindow("Fenetre", cv2.WND_PROP_FULLSCREEN)
