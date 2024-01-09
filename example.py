@@ -127,7 +127,10 @@ while True:
         cv2.imshow("Fenetre", black_background)
 
 
-        time.sleep(0.05)
+    hauteur, largeur, _ = frame.shape
+    cv2.imshow("Webcam", cv2.resize(frame, (largeur//2, hauteur//2)))
+
+    time.sleep(0.05)
 
     if cv2.waitKey(1) == 27:
         break
